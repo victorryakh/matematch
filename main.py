@@ -9,7 +9,7 @@ log_handler = logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
-        logging.FileHandler("matematch.log", encoding='utf-8', mode='w'),
+        logging.FileHandler("logs/frontend-discord.log", encoding='utf-8', mode='w'),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -99,16 +99,6 @@ class RegisterModal(discord.ui.Modal, title='Регистрация'):
         max_length=300,
     )
 
-    async def on_submit(self, interaction: discord.Interaction):
-        await interaction.response.send_message(f'Thanks for your feedback, {self.name.value}!', ephemeral=True)
-
-    async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
-        await interaction.response.send_message('Oops! Something went wrong.', ephemeral=True)
-
-        # Make sure we know what the error actually is
-        traceback.print_exception(type(error), error, error.__traceback__)
-
-
 @bot.hybrid_command()
 async def register(ctx):
     """Выполни, чтобы начать использовать бота"""
@@ -118,5 +108,10 @@ async def register(ctx):
     birthday = (await bot.wait_message(ctx)).content
     await ctx.send("🔹 О себе\nНапиши ниже то, что стоит знать твоему тиммейту о тебе")
     about_me = (await bot.wait_message(ctx)).content
+
+@bot.hybrid_command()
+async def inputname(interaction: discord.Interaction, your_name: str):
+    print(your_name)
+    await interaction.response.send_message(f'you registered as {your_name}', ephemeral=True)
 
 bot.run(config.token, log_handler=log_handler)
