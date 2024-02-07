@@ -1,7 +1,6 @@
-2024-02-07 02:41:44,926 [WARNING] PyNaCl is not installed, voice will NOT be supported
-2024-02-07 02:41:44,927 [INFO] logging in using static token
-2024-02-07 02:41:45,986 [INFO] Tree synced to guild 1168617264807948308
-2024-02-07 02:41:46,600 [INFO] Shard ID None has connected to Gateway (Session ID: e9e7e68a8051c9faffa82186c41f00b5).
-2024-02-07 02:41:48,607 [INFO] The bot is ready!
-2024-02-07 02:42:15,992 [INFO] Context author is bot: False
-2024-02-07 02:44:14,158 [INFO] Context author is bot: False
+2024-02-07 02:59:59,537 [WARNING] PyNaCl is not installed, voice will NOT be supported
+2024-02-07 02:59:59,539 [INFO] logging in using static token
+2024-02-07 03:00:00,740 [INFO] Tree synced to guild 1168617264807948308
+2024-02-07 03:00:01,461 [INFO] Shard ID None has connected to Gateway (Session ID: 05de017077ecac4b9689bc132df35d46).
+2024-02-07 03:00:03,464 [INFO] The bot is ready!
+2024-02-07 03:00:18,148 [INFO] Context author is bot: False

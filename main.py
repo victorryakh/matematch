@@ -41,13 +41,82 @@ def check_commands(ctx):
     logging.info(f"Context author is bot: {ctx.author.bot}")
     return ctx.author.bot == False
 
+
+class Dropdown(discord.ui.Select):
+    def __init__(self):
+
+        # Set the options that will be presented inside the dropdown
+        options = [
+            discord.SelectOption(label='Valorant', description='Поддержка рейтинга, статистики'),
+            discord.SelectOption(label='CS2', description='Подарок при привязке аккаунта!'),
+            discord.SelectOption(label='DOTA 2', description='Yet another description'),
+            discord.SelectOption(label="Нет в списке", description="Напишу название игры сам")
+        ]
+
+        # The placeholder is what will be shown when no option is chosen
+        # The min and max values indicate we can only pick one of the three options
+        # The options parameter defines the dropdown options. We defined this above
+        super().__init__(placeholder='Выбери игру из списка...', min_values=1, max_values=1, options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        # Use the interaction object to send a response message containing
+        # the user's favourite colour or choice. The self object refers to the
+        # Select object, and the values attribute gets a list of the user's
+        # selected options. We only want the first one.
+        await interaction.response.send_message(f'Your favourite colour is {self.values[0]}')
+
+
+class DropdownView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+
+        # Adds the dropdown to our view object.
+        self.add_item(Dropdown())
+
+
+class RegisterModal(discord.ui.Modal, title='Регистрация'):
+    # Our modal classes MUST subclass `discord.ui.Modal`,
+    # but the title can be whatever you want.
+
+    # This will be a short input, where the user can enter their name
+    # It will also have a placeholder, as denoted by the `placeholder` kwarg.
+    # By default, it is required and is a short-style input which is exactly
+    # what we want.
+    name = discord.ui.TextInput(
+        label='Name',
+        placeholder='Your name here...',
+    )
+
+    # This is a longer, paragraph style input, where user can submit feedback
+    # Unlike the name, it is not required. If filled out, however, it will
+    # only accept a maximum of 300 characters, as denoted by the
+    # `max_length=300` kwarg.
+    feedback = discord.ui.TextInput(
+        label='Tell about yourself',
+        style=discord.TextStyle.long,
+        placeholder='Type here...',
+        required=False,
+        max_length=300,
+    )
+
+    async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.send_message(f'Thanks for your feedback, {self.name.value}!', ephemeral=True)
+
+    async def on_error(self, interaction: discord.Interaction, error: Exception) -> None:
+        await interaction.response.send_message('Oops! Something went wrong.', ephemeral=True)
+
+        # Make sure we know what the error actually is
+        traceback.print_exception(type(error), error, error.__traceback__)
+
+
 @bot.hybrid_command()
 async def register(ctx):
     """Выполни, чтобы начать использовать бота"""
+    view=DropdownView()
+    await ctx.send("asc", view=view)
     await ctx.send("🔹 Дата рождения\nВведи дату рождения в формате DD.MM.YYYY (например, 06.02.2024)")
     birthday = (await bot.wait_message(ctx)).content
     await ctx.send("🔹 О себе\nНапиши ниже то, что стоит знать твоему тиммейту о тебе")
     about_me = (await bot.wait_message(ctx)).content
-    
 
 bot.run(config.token, log_handler=log_handler)
