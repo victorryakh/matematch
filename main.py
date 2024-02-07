@@ -3,6 +3,7 @@ import os
 import discord
 from discord.ext import commands
 
+# TODO: make a separate file to setup logging?
 import sys
 import logging
 log_handler = logging.basicConfig(
