@@ -1,6 +1,7 @@
 import config
 import os
 import discord
+import api_sqlite
 from discord.ext import commands
 
 # TODO: make a separate file to setup logging?
@@ -109,6 +110,23 @@ async def register(ctx):
     birthday = (await bot.wait_message(ctx)).content
     await ctx.send("🔹 О себе\nНапиши ниже то, что стоит знать твоему тиммейту о тебе")
     about_me = (await bot.wait_message(ctx)).content
+
+@bot.hybrid_command()
+async def api_test(ctx):
+    id = ctx.author.id
+    if await api_sqlite.is_user(id):
+        info = await api_sqlite.get_user(id)
+        await ctx.send(f'You have already registered\n{info}')
+    else:
+        await ctx.send('Your timezone:')
+        tz = (await bot.wait_message(ctx)).content
+        await ctx.send('Your aboutme:')
+        about = (await bot.wait_message(ctx)).content
+        await api_sqlite.add_user(id, about, tz)
+        await ctx.send('You registered')
+
+        
+
 
 @bot.hybrid_command()
 async def inputname(interaction: discord.Interaction, your_name: str):

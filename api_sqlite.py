@@ -1,47 +1,57 @@
 import aiosqlite
 import asyncio
 import config
+import logging
 
 async def init_db():
     async with aiosqlite.connect(config.sqlite_file) as db:
         await db.execute('''CREATE TABLE IF NOT EXISTS users
-                            (id INTEGER PRIMARY KEY, global_name TEXT, name TEXT, about TEXT, )''')
+                            (id INTEGER PRIMARY KEY, about TEXT, tz TEXT, banned INTEGER)''')
         await db.commit()
+        logging.warning('TABLE CREATED')
 
-# Функция для добавления новой учетной записи пользователя
-async def add_user(username, password):
+async def destroy_db():
+        async with aiosqlite.connect(config.sqlite_file) as db:
+            await db.execute('DROP TABLE IF EXISTS ?', config.sqlite_file)
+            await db.commit()
+        logging.warning('TABLE DESTROYED')
+
+async def is_user(id):
+    async with aiosqlite.connect(config.sqlite_file) as db:
+        async with db.execute('SELECT * FROM users WHERE id = ?', (id,)) as cursor:
+            return (await cursor.fetchone()) is not None
+         
+async def add_user(id, about="", tz="Etc/UTC"):
     async with aiosqlite.connect(config.sqlite_file) as db:
         try:
-            await db.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+            await db.execute("INSERT INTO users (id, about, tz, banned) VALUES (?, ?, ?, ?)", (id, about, tz, 0))
         except aiosqlite.OperationalError:
             await init_db()
-            await add_user(username, password)
+            await add_user(id, about)
+            return
+        except aiosqlite.IntegrityError:
+            logging.warning(f'Account< {id} exists')
             return
         await db.commit()
-    print("Учетная запись пользователя успешно добавлена!")
+        logging.info(f"Account added: {id}")
 
-# Функция для удаления учетной записи пользователя
-async def delete_user(username):
+async def get_user(user_id):
     async with aiosqlite.connect(config.sqlite_file) as db:
-        await db.execute("DELETE FROM users WHERE username = ?", (username,))
-        await db.commit()
-    print("Учетная запись пользователя успешно удалена!")
+        async with db.execute('SELECT * FROM users WHERE id = ?', (user_id,)) as cursor:
+            user = await cursor.fetchone()
+    logging.info(f"Account got: {user}")
+    return user
 
 # Функция для изменения пароля пользователя
-async def update_password(username, new_password):
-    async with aiosqlite.connect(config.sqlite_file) as db:
+async def update_fields(field_name, field_value):
+    async with aiosqlite.connect(config.sqlite_file) as db:        
         await db.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username))
         await db.commit()
     print("Пароль пользователя успешно изменен!")
 
 # Пример использования функций
 async def main():
-    await add_user("user1", "password1")
-    await add_user("user2", "password2")
-
-    await delete_user("user1")
-
-    await update_password("user2", "new_password")
-
+    await add_user(1, about="aboutme", tz="Russia/Moscow")
+    print( await get_user(1))
 # Запуск асинхронной функции
-asyncio.run(main())
+# asyncio.run(main())
